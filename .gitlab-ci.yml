@@ -4,13 +4,9 @@ stages:
   - code_quality
   - test
   - release
-  - deploy
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  AZURE_WEBAPP_NAME: "mon-serveur"
-  AZURE_RESOURCE_GROUP: "mon-groupe"
-  AZURE_SUBSCRIPTION_ID: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 cache:
   key: maven-cache
@@ -65,6 +61,7 @@ test:
   script:
     - mvn test
   artifacts:
+    when: always
     paths:
       - target/surefire-reports
     expire_in: 1 day
