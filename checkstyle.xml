@@ -1,0 +1,7 @@
+<module name="TreeWalker">
+    <!-- Desactive la verification des caracteres de tabulation -->
+    <module name="FileTabCharacter" />
+    
+    <!-- Desactive la regle qui oblige la presence du fichier package-info -->
+    <module name="PackageInfo" />
+</module>
