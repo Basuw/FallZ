@@ -17,6 +17,8 @@ cache:
   paths:
     - .m2/repository
 
+# Stage 1 : Analyse de la qualite du code
+
 # Analyse les potentielles erreurs de logique (manipulation incorrecte des objets, erreur d'injection)
 spotbug:
   stage: code_quality
@@ -28,6 +30,7 @@ spotbug:
     when: always
     paths:
       - target/spotbugs-report.html
+    expire_in: 1 day
 
 # Analyse statique du code, assure le formattage, les conventions de nommage et la documentation
 checkstyle:
@@ -40,47 +43,36 @@ checkstyle:
     when: always
     paths:
       - target/checkstyle-result.xml
+    expire_in: 1 day
 
-# Analyse des dépendances pour trouver des vulnérabilités communes
+# Analyse des dependances pour trouver des vulnerabilites communes
 dependency-check:
   stage: code_quality
   script:
     - mvn dependency-check:aggregate
   only:
-    - merge_requests
+    - master # Le scan de dependance etant long, on ne le fait qu'une fois au deploiement sur master
   artifacts:
     when: always
     paths:
       - target/dependency-check-report.html
+    expire_in: 1 day
 
-# 📌 2. Exécution des tests
-# test:
-#   stage: test
-#   script:
-#     - mvn test
-#   artifacts:
-#     paths:
-#       - target/surefire-reports  # Stocke les rapports de test
-#     expire_in: 7 days
+# Stage 2 : Execution des tests
 
-# # 📌 3. Préparation de la release (sur merge vers master)
-# release:
-#   stage: release
-#   script:
-#     - mvn release:prepare release:perform -B
-#   only:
-#     - master  # Ne s'exécute que sur la branche master
-#   artifacts:
-#     paths:
-#       - target/*.jar
-#     expire_in: 1 month
+test:
+  stage: test
+  script:
+    - mvn test
+  artifacts:
+    paths:
+      - target/surefire-reports
+    expire_in: 1 day
 
-# # 📌 4. Déploiement sur Azure App Service (sur master)
-# deploy:
-#   stage: deploy
-#   image: mcr.microsoft.com/azure-cli  # Image officielle d'Azure CLI
-#   script:
-#     - az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-#     - az webapp deploy --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_WEBAPP_NAME --src-path target/*.jar
-#   only:
-#     - master  # Déploiement uniquement sur master
+# Stage 3: Preparation de la release (sur merge vers master)
+release:
+  stage: release
+  script:
+    - mvn release:prepare -B
+  only:
+    - master
