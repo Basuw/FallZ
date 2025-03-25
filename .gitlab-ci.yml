@@ -60,6 +60,8 @@ test:
   stage: test
   script:
     - mvn test
+  only:
+    - merge_requests
   artifacts:
     when: always
     paths:
