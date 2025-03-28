@@ -1,11 +1,16 @@
-### Java Spring template project
+# Fallz Backend
 
-This project is based on a GitLab [Project Template](https://docs.gitlab.com/ee/gitlab-basics/create-project.html).
+## CI/CD
 
-Improvements can be proposed in the [original project](https://gitlab.com/gitlab-org/project-templates/spring).
+La CI/CD de ce projet se decompose en 3 stages :
 
-### CI/CD with Auto DevOps
+- Scan du code a chaque merge request pour s'assurer de sa qualite
+  - Scan statique : respect de la syntaxe, des normes
+  - Scan logique : Potentielle null pointer exception, erreur d'injection spring
+  - Scan des dependances depuis une base de donnees de l'owasp
+    - Processus long donc execute seulement au merge sur master
+- Execution des tests a chaque merge request
+- Prepartion du jar pour deploiement au merge sur master
 
-This template is compatible with [Auto DevOps](https://docs.gitlab.com/ee/topics/autodevops/).
-
-If Auto DevOps is not already enabled for this project, you can [turn it on](https://docs.gitlab.com/ee/topics/autodevops/#enabling-auto-devops) in the project settings.
+Si un des stages (scan ou test) echoue, la merge request ne peut pas fusionne sur la branche cible.
+Cela permet de s'assurer de la bonne qualite du code present en production.
