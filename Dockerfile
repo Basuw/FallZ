@@ -1,15 +1,13 @@
-FROM maven:3-jdk-8-alpine as builder
+FROM openjdk:21
 
-WORKDIR /usr/src/app
-
-COPY . /usr/src/app
-RUN mvn package
-
-FROM openjdk:8-jre-alpine
-
-COPY --from=builder /usr/src/app/target/*.jar /app.jar
+WORKDIR /app
 
 EXPOSE 8080
 
-ENTRYPOINT ["java"]
-CMD ["-jar", "/app.jar"]
+RUN rm -rf /app/*
+
+#COPY pom.xml /app/pom.xml
+
+COPY target/backend-0.0.1-SNAPSHOT.jar /app/backend-0.0.1-SNAPSHOT.jar
+
+CMD ["java", "-jar", "backend-0.0.1-SNAPSHOT.jar"]
