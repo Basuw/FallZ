@@ -9,13 +9,11 @@ services:
   bdd-fallz:
     build: ./data-fallz
     environment:
-      POSTGRES_DB: Backend
+      POSTGRES_DB: FallzBackend
       POSTGRES_USER: api_client
       POSTGRES_PASSWORD: ApiClient1234
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:

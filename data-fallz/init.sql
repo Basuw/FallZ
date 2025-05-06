@@ -1,31 +1,56 @@
-CREATE SEQUENCE Task_sequence
-   START WITH 1
-   INCREMENT BY 1;
-
-CREATE TABLE List_user(
-   id_user UUID,
-   username VARCHAR(50) UNIQUE,
-   "password" TEXT,
-   mail VARCHAR(255) UNIQUE,  
-   PRIMARY KEY(id_user)
+CREATE TABLE Person(
+                       id_person UUID,
+                       firstname VARCHAR(50) UNIQUE,
+                       lastname VARCHAR(50) UNIQUE,
+                       PRIMARY KEY (id_person)
 );
 
-CREATE TABLE List(
-   id_owner UUID,
-   "name" VARCHAR(50),
-   id_list UUID,
-   PRIMARY KEY(id_list),
-   FOREIGN KEY (id_owner) REFERENCES List_user(id_user)
+CREATE TABLE "user" (
+    id_user UUID,
+    id_person UUID,
+    "password" VARCHAR(255),
+    mail VARCHAR(255) UNIQUE,
+    PRIMARY KEY(id_user),
+    FOREIGN KEY (id_person) REFERENCES Person(id_person)
 );
 
-CREATE TABLE Task(
-   id_task UUID,
-   id_list UUID,
-   "name" VARCHAR(50),
-   "description" VARCHAR(255),
-   assignee_id UUID,
-   created_date TIMESTAMP,
-   PRIMARY KEY(id_task),
-   FOREIGN KEY (id_list) REFERENCES List(id_list),
-   FOREIGN KEY (assignee_id) REFERENCES List_user(id_user)
+CREATE TABLE Device(
+   id_device UUID,
+   PRIMARY KEY(id_device)
+);
+
+CREATE TABLE LinkedDevice(
+    id_person UUID,
+    id_device UUID,
+    PRIMARY KEY(id_person, id_device),
+    FOREIGN KEY (id_person) REFERENCES Person(id_person),
+    FOREIGN KEY (id_device) REFERENCES Device(id_device)
+);
+
+CREATE TABLE Paiement(
+    id_paiement UUID,
+    id_user UUID,
+    amount NUMERIC(10,2),
+    date TIMESTAMP,
+    PRIMARY KEY(id_paiement),
+    FOREIGN KEY (id_user) REFERENCES "user"(id_user)
+);
+
+CREATE TABLE Parcours(
+    id_parcours UUID,
+    id_user UUID,
+    id_device UUID,
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
+    PRIMARY KEY(id_parcours),
+    FOREIGN KEY (id_user) REFERENCES "user"(id_user),
+    FOREIGN KEY (id_device) REFERENCES Device(id_device)
+);
+
+CREATE TABLE Fall(
+    id_fall UUID,
+    id_parcours UUID,
+    date TIMESTAMP,
+    PRIMARY KEY(id_fall),
+    FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours)
 );

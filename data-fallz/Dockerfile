@@ -2,7 +2,7 @@
 FROM postgres:latest
 
 # Définit les variables d'environnement
-ENV POSTGRES_DB=Backend
+ENV POSTGRES_DB=FallzBackend
 ENV POSTGRES_USER=api_client
 ENV POSTGRES_PASSWORD=ApiClient1234
 
