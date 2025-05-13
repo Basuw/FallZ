@@ -7,6 +7,4 @@ import java.util.UUID;
 public class Device {
     @Id
     private UUID idDevice;
-
-    // Getters and setters...
 }
