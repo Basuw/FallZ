@@ -54,3 +54,12 @@ CREATE TABLE Fall(
     PRIMARY KEY(id_fall),
     FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours)
 );
+
+CREATE TABLE  Coordonates(
+    id_coordonates UUID,
+    id_parcours UUID,
+    latitude NUMERIC(15,8),
+    longitude NUMERIC(15,8),
+    PRIMARY KEY(id_coordonates),
+    FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours)
+);
