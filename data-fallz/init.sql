@@ -1,7 +1,7 @@
 CREATE TABLE Person(
                        id_person UUID,
-                       firstname VARCHAR(50) UNIQUE,
-                       lastname VARCHAR(50) UNIQUE,
+                       firstname VARCHAR(50),
+                       lastname VARCHAR(50),
                        PRIMARY KEY (id_person)
 );
 
