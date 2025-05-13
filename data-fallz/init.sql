@@ -19,7 +19,7 @@ CREATE TABLE Device(
    PRIMARY KEY(id_device)
 );
 
-CREATE TABLE LinkedDevice(
+CREATE TABLE Linked_Device(
     id_person UUID,
     id_device UUID,
     PRIMARY KEY(id_person, id_device),
