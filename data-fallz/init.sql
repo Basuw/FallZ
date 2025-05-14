@@ -65,7 +65,7 @@ CREATE TABLE  Coordonates(
     date TIMESTAMP,
     PRIMARY KEY(id_coordonates),
     FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours),
-    FOREIGN KEY (id_linked_device) REFERENCES Linked_Device(id_linked_person)
+    FOREIGN KEY (id_linked_device) REFERENCES Linked_Device(id_linked_device)
 );
 
 CREATE TABLE  Sos(
