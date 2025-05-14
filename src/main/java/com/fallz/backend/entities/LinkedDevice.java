@@ -7,7 +7,7 @@ import java.util.UUID;
 public class LinkedDevice {
     @Id
     @GeneratedValue
-    private UUID id;
+    private UUID idLinkedDevice;
 
     @ManyToOne
     @JoinColumn(name = "id_person", nullable = false)
