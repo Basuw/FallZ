@@ -20,9 +20,10 @@ CREATE TABLE Device(
 );
 
 CREATE TABLE Linked_Device(
+    id_linked_device UUID,
     id_person UUID,
     id_device UUID,
-    PRIMARY KEY(id_person, id_device),
+    PRIMARY KEY(id_linked_device),
     FOREIGN KEY (id_person) REFERENCES Person(id_person),
     FOREIGN KEY (id_device) REFERENCES Device(id_device)
 );
@@ -53,4 +54,26 @@ CREATE TABLE Fall(
     date TIMESTAMP,
     PRIMARY KEY(id_fall),
     FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours)
+);
+
+CREATE TABLE  Coordonates(
+    id_coordonates UUID,
+    id_parcours UUID,
+    id_linked_device UUID,
+    latitude NUMERIC(15,8),
+    longitude NUMERIC(15,8),
+    date TIMESTAMP,
+    PRIMARY KEY(id_coordonates),
+    FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours),
+    FOREIGN KEY (id_linked_device) REFERENCES Linked_Device(id_linked_device)
+);
+
+CREATE TABLE  Sos(
+    id_sos UUID,
+    id_coordonates UUID,
+    id_linked_device UUID,
+    date TIMESTAMP,
+    PRIMARY KEY(id_sos),
+    FOREIGN KEY (id_coordonates) REFERENCES Coordonates(id_coordonates),
+    FOREIGN KEY (id_linked_device) REFERENCES Linked_Device(id_linked_device)
 );
