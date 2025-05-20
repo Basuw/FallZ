@@ -6,14 +6,13 @@ import java.util.UUID;
 
 @Entity
 public class Fall {
+
     @Id
-    private UUID idFall;
+    @Column(name = "id_fall", nullable = false)
+    private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_parcours", nullable = false)
-    private Parcours parcours;
+    @OneToOne
+    @JoinColumn(name = "id_coordonates", nullable = false)
+    private Coordonates coordonates;
 
-    private LocalDateTime date;
-
-    // Getters and setters...
 }

@@ -1,4 +1,5 @@
 package com.fallz.backend.broker;
+import com.fallz.backend.entities.Fall;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fallz.backend.entities.Coordonates;
 import com.fallz.backend.entities.Parcours;
-import com.fallz.backend.entities.Sos;
 import com.fallz.backend.repositories.CoordonatesRepository;
 import com.fallz.backend.repositories.ParcoursRepository;
-import com.fallz.backend.repositories.SosRepository;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class MqttService {
@@ -30,9 +28,6 @@ public class MqttService {
 
     @Autowired
     private CoordonatesRepository coordonatesRepository;
-
-    @Autowired
-    private SosRepository sosRepository;
 
     @Autowired
     private ParcoursRepository parcoursRepository;
@@ -192,11 +187,11 @@ public class MqttService {
 
             // Création et sauvegarde du SOS
             if (coordonates != null) {
-                Sos sos = new Sos();
-                sos.setCoordonates(coordonates);
-                sosRepository.save(sos);
+/*                Fall fall = new Fall();
+                fall.setCoordonates(coordonates);
+                fall.save(sos);
 
-                logger.info("SOS sauvegardé en base de données avec ID: {}", sos.getIdSos());
+                logger.info("SOS sauvegardé en base de données avec ID: {}", sos.getIdSos());*/
             }
 
         } catch (Exception e) {

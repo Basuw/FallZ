@@ -1,15 +1,10 @@
 package com.fallz.backend.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,15 +16,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class Device {
-	
+
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID idDevice;
-    
+    @Column(name = "id_device", nullable = false)
+    private UUID id;
+
     @OneToOne
-    @JoinColumn(name = "id_user", referencedColumnName = "idUser", nullable = false)
-    private User user;
-    
-    @OneToMany(mappedBy = "device")
-    private List<Parcours> parcours;
+    @JoinColumn(name = "id_person", nullable = false)
+    private Person person;
+
+    @OneToMany(mappedBy = "device", cascade = CascadeType.ALL)
+    private List<Parcours> parcours = new ArrayList<>();
 }
