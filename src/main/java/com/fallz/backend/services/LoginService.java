@@ -13,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fallz.backend.dto.ConnectDTO;
 import com.fallz.backend.dto.RegisterDTO;
+import com.fallz.backend.entities.Device;
 import com.fallz.backend.entities.Person;
 import com.fallz.backend.entities.User;
 import com.fallz.backend.exceptions.AccessDeniedException;
 import com.fallz.backend.exceptions.AlreadyExistsException;
+import com.fallz.backend.repositories.DeviceRepository;
 import com.fallz.backend.repositories.PersonRepository;
 import com.fallz.backend.repositories.UserRepository;
 
@@ -25,17 +27,20 @@ public class LoginService {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private PersonRepository personRepository;
 
 	@Autowired
+	private DeviceRepository deviceRepository;
+
+	@Autowired
 	private AuthenticationManager authenticationManager;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public User connectUser(ConnectDTO dto) {
 		final String mail = dto.getMail();
 
@@ -43,13 +48,12 @@ public class LoginService {
 
 		return user.map(u -> {
 			try {
-			Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(mail,
-					dto.getPassword());
+				Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(mail, dto.getPassword());
 
-			authenticationManager.authenticate(authenticationRequest);
+				authenticationManager.authenticate(authenticationRequest);
 
-			return u;
-			}catch(BadCredentialsException e) {
+				return u;
+			} catch (BadCredentialsException e) {
 				throw new AccessDeniedException("The couple user-password is incorrect");
 			}
 		}).orElseThrow(() -> new AccessDeniedException("The couple user-password is incorrect"));
@@ -60,18 +64,16 @@ public class LoginService {
 		if (userRepository.existsByMail(dto.getMail())) {
 			throw new AlreadyExistsException("A user with this email already exists.");
 		}
-		
-		Person person = Person.builder()
-				.firstname(dto.getFirstname())
-				.lastname(dto.getLastname())
-				.build();
-		
+
+		Person person = Person.builder().firstname(dto.getFirstname()).lastname(dto.getLastname()).build();
+
 		personRepository.save(person);
 
-		return userRepository.save(User.builder()
-				.mail(dto.getMail())
-				.password(passwordEncoder.encode(dto.getPassword()))
-				.person(person)
-				.build());
+		User user = userRepository.save(User.builder().mail(dto.getMail())
+				.password(passwordEncoder.encode(dto.getPassword())).person(person).build());
+
+		deviceRepository.save(Device.builder().user(user).build());
+
+		return user;
 	}
 }

@@ -1,21 +1,26 @@
 package com.fallz.backend.entities;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Setter
 @Getter
+@NoArgsConstructor
 public class Coordonates {
+	
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idCoordonates;
 
     private double latitude;
@@ -26,19 +31,9 @@ public class Coordonates {
     @JoinColumn(name = "id_parcours", nullable = false)
     private Parcours parcours;
 
-    // Default constructor
-    public Coordonates() {}
-
     // Constructor with latitude and longitude
     public Coordonates(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-    }
-
-    @PrePersist
-    public void generateId() {
-        if (this.idCoordonates == null) {
-            this.idCoordonates = UUID.randomUUID();
-        }
     }
 }

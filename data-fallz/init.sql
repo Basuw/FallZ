@@ -16,7 +16,9 @@ CREATE TABLE "user" (
 
 CREATE TABLE Device(
    id_device UUID,
-   PRIMARY KEY(id_device)
+   id_user UUID,
+   PRIMARY KEY(id_device),
+   FOREIGN KEY (id_user) REFERENCES "user"(id_user)
 );
 
 CREATE TABLE Linked_Device(
@@ -39,12 +41,10 @@ CREATE TABLE Paiement(
 
 CREATE TABLE Parcours(
     id_parcours UUID,
-    id_user UUID,
     id_device UUID,
     start_date TIMESTAMP,
     end_date TIMESTAMP,
     PRIMARY KEY(id_parcours),
-    FOREIGN KEY (id_user) REFERENCES "user"(id_user),
     FOREIGN KEY (id_device) REFERENCES Device(id_device)
 );
 
