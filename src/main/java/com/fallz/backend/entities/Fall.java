@@ -15,4 +15,7 @@ public class Fall {
     @JoinColumn(name = "id_coordonates", nullable = false)
     private Coordonates coordonates;
 
+    @ManyToOne
+    @JoinColumn(name = "id_person", nullable = false)
+    private Person person;
 }

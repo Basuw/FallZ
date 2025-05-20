@@ -33,4 +33,7 @@ public class Person {
 
     @OneToOne(mappedBy = "person", cascade = CascadeType.ALL)
     private Device device;
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+    private List<Fall> falls = new ArrayList<>();
 }

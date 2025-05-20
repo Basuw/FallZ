@@ -42,8 +42,10 @@ CREATE TABLE Parcours(
 CREATE TABLE Fall(
     id_fall UUID,
     id_coordonates UUID,
+    id_person UUID,
     PRIMARY KEY(id_fall),
     FOREIGN KEY (id_coordonates) REFERENCES Coordonates(id_coordonates),
+    FOREIGN KEY (id_person) REFERENCES Person(id_person)
 );
 
 CREATE TABLE  Coordonates(
