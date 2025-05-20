@@ -3,6 +3,8 @@ package com.fallz.backend.entities;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,10 +27,13 @@ public class Coordonates {
 
     private double latitude;
     private double longitude;
+    
+    @JsonIgnore
     private LocalDateTime date;
 
     @ManyToOne
     @JoinColumn(name = "id_parcours", nullable = false)
+    @JsonIgnore
     private Parcours parcours;
 
     // Constructor with latitude and longitude
