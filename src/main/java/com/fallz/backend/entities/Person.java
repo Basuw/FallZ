@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "person")
 public class Person {
+	
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idPerson;

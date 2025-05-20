@@ -41,6 +41,7 @@ public class User {
     private Person person;
     
     @OneToOne(mappedBy = "user")
+    @JsonIgnore
     private Device device;
 }
 

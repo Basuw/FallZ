@@ -33,6 +33,7 @@ CREATE TABLE Linked_Device(
 CREATE TABLE Paiement(
     id_paiement UUID,
     id_user UUID,
+    is_paid boolean,
     amount NUMERIC(10,2),
     date TIMESTAMP,
     PRIMARY KEY(id_paiement),

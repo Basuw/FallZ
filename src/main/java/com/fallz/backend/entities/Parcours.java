@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +28,8 @@ public class Parcours {
 	
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID idParcours;
+    @Column(name = "id_parcours")
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "id_device", nullable = false)

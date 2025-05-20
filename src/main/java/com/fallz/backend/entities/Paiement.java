@@ -1,6 +1,5 @@
 package com.fallz.backend.entities;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,18 +14,18 @@ import lombok.Data;
 @Entity
 @Data
 public class Paiement {
-	
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID idPaiement;
 
-    @ManyToOne
-    @JoinColumn(name = "id_user", nullable = false)
-    private User user;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID idPaiement;
 
-    private Float amount;
+	@ManyToOne
+	@JoinColumn(name = "id_user", nullable = false)
+	private User user;
 
-    private LocalDateTime date;
+	private Float amount;
 
-    // Getters and setters...
+	private LocalDateTime date;
+
+	private boolean isPaid;
 }

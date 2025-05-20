@@ -12,5 +12,5 @@ import com.fallz.backend.entities.User;
 @Repository
 public interface PaiementRepository extends JpaRepository<Paiement, UUID>{
 
-	public Optional<Paiement> findByUser(User user);
+	public Optional<Paiement> findByUserAndIsPaid(User user, boolean isPaid);
 }

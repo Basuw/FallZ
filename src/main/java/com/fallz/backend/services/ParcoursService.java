@@ -80,6 +80,7 @@ public class ParcoursService {
 
 		existingCoordonates.addAll(coordonates.stream().map(coordonate -> {
 			Coordonates newCoordonates = new Coordonates(coordonate.getLatitude(), coordonate.getLongitude());
+			newCoordonates.setDate(LocalDateTime.now());
 			newCoordonates.setParcours(parcours);
 			return coordonatesRepository.save(newCoordonates);
 		}).collect(Collectors.toList()));

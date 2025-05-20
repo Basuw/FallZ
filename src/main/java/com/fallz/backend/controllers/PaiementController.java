@@ -1,5 +1,7 @@
 package com.fallz.backend.controllers;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,6 @@ public class PaiementController {
 	
 	@GetMapping(path = "/{userId}")
 	public ResponseEntity<Float> getBill(@PathVariable String userId) {
-		return ResponseEntity.ok(0.0f);
+		return ResponseEntity.ok(paiementService.getPaiement(UUID.fromString(userId)));
 	}
 }

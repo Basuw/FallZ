@@ -22,8 +22,8 @@ public class PaiementService {
 	@Transactional(readOnly = true)
 	public Float getPaiement(UUID userId) {
 		return paiementRepository
-				.findByUser(userRepository.findById(userId)
-						.orElseThrow(() -> new EntityNotFoundException("User not found")))
+				.findByUserAndIsPaid(userRepository.findById(userId)
+						.orElseThrow(() -> new EntityNotFoundException("User not found")), false)
 				.orElseThrow(() -> new EntityNotFoundException("Paiement not found")).getAmount();
 	}
 }
