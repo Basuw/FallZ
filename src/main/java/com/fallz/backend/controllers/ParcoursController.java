@@ -25,27 +25,28 @@ import jakarta.validation.constraints.NotEmpty;
 @RestController
 @RequestMapping(path = "/parcours")
 public class ParcoursController {
-	
+
 	@Autowired
 	private CoordonatesService coordonatesService;
-	
+
 	@Autowired
 	private ParcoursService parcoursService;
 
 	@GetMapping(path = "/{userId}")
 	public List<Parcours> getParoursByUserId(@PathVariable UUID userId) {
-		return parcoursService.getParcoursByUserId(userId);
-	}
+		return parcoursService.getParcoursByPersonId(userId);
+	}
+
 	@PostMapping(path = "/{userId}")
 	public Parcours createParcours(@PathVariable UUID userId, @RequestBody List<AddCoordonateDTO> coordonates) {
 		return parcoursService.createParcours(userId, coordonates);
 	}
-	
+
 	@PatchMapping(path = "/{parcoursId}")
 	public ResponseEntity<List<Coordonates>> addCoordonates(@PathVariable UUID parcoursId, @RequestBody @Valid @NotEmpty List<AddCoordonateDTO> coordonates) {
 		return ResponseEntity.ok(parcoursService.addCoordonates(parcoursId, coordonates));
 	}
-	
+
 	@GetMapping(path = "/{parcoursId}/coordonates")
 	public ResponseEntity<List<Coordonates>> getCoordonatesByParcoursId(@PathVariable UUID parcoursId) {
 		return ResponseEntity.ok(coordonatesService.getCoordonatesByParcoursId(parcoursId));
