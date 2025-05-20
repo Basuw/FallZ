@@ -9,7 +9,7 @@ import java.util.UUID;
 public class Paiement {
     @Id
     @Column(name = "id_paiement", nullable = false)
-    private UUID id;
+    private UUID idPaiement;
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
