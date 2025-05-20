@@ -1,13 +1,10 @@
 package com.fallz.backend.entities;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,14 +19,19 @@ import lombok.NoArgsConstructor;
 public class Person {
 	
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID idPerson;
+    @Column(name = "id_person", nullable = false)
+    private UUID id;
 
-    @Column(unique = true, length = 50)
+    @ManyToOne
+    @JoinColumn(name = "id_user", nullable = false)
+    private User user;
+
+    @Column(name = "firstname")
     private String firstname;
 
-    @Column(unique = true, length = 50)
+    @Column(name = "lastname")
     private String lastname;
 
-    // Getters and setters...
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL)
+    private Device device;
 }

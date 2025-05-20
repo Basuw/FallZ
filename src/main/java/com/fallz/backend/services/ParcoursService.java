@@ -10,18 +10,14 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import com.fallz.backend.entities.*;
+import com.fallz.backend.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fallz.backend.dto.AddCoordonateDTO;
-import com.fallz.backend.entities.Coordonates;
-import com.fallz.backend.entities.Parcours;
-import com.fallz.backend.entities.User;
 import com.fallz.backend.exceptions.EntityNotFoundException;
-import com.fallz.backend.repositories.CoordonatesRepository;
-import com.fallz.backend.repositories.ParcoursRepository;
-import com.fallz.backend.repositories.UserRepository;
 
 @Service
 public class ParcoursService {
@@ -34,16 +30,20 @@ public class ParcoursService {
 
 	@Autowired
 	private CoordonatesRepository coordonatesRepository;
+    @Autowired
+    private PersonRepository personRepository;
+    @Autowired
+    private DeviceRepository deviceRepository;
 
 	@Transactional(readOnly = true)
-	public List<Parcours> getParcoursByUserId(UUID id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
-		return parcoursRepository.findByDevice(user.getDevice());
+	public List<Parcours> getParcoursByPersonId(UUID id) {
+		Person person = personRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Person not found"));
+		return parcoursRepository.findByDevice(person.getDevice());
 	}
 
 	@Transactional
 	public Parcours createParcours(UUID id, List<AddCoordonateDTO> coordonates) {
-		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
+		Person person = personRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Person not found"));
 
 		Instant startDate = Instant.now();
 
@@ -52,7 +52,7 @@ public class ParcoursService {
 
 		long randomSeconds = ThreadLocalRandom.current().nextLong(minSeconds, maxSeconds + 1);
 
-		Parcours parcours = Parcours.builder().device(user.getDevice())
+		Parcours parcours = Parcours.builder().device(person.getDevice())
 				.startDate(LocalDateTime.ofInstant(startDate, ZoneId.systemDefault()))
 				.endDate(LocalDateTime.ofInstant(startDate.plusSeconds(randomSeconds), ZoneId.systemDefault())).build();
 

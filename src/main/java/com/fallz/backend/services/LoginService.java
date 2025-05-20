@@ -65,14 +65,10 @@ public class LoginService {
 			throw new AlreadyExistsException("A user with this email already exists.");
 		}
 
-		Person person = Person.builder().firstname(dto.getFirstname()).lastname(dto.getLastname()).build();
-
-		personRepository.save(person);
-
 		User user = userRepository.save(User.builder().mail(dto.getMail())
-				.password(passwordEncoder.encode(dto.getPassword())).person(person).build());
+				.password(passwordEncoder.encode(dto.getPassword())).build());
 
-		deviceRepository.save(Device.builder().user(user).build());
+		deviceRepository.save(Device.builder().build());
 
 		return user;
 	}
