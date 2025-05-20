@@ -40,13 +40,18 @@ public class MqttService {
     private final String APPLICATION_ID = "detecteur-chute";
     private final String TENANT_ID = "fallz";
     private final String DEVICE_ID = "arduino-mkr-1300";
-    private final String USERNAME = "detecteur-chute@fallz";
-    private final String PASSWORD = "NNSXS.NXMX24ZDGYOOYOL435B2UWISKYPRVALQJMKMTPA.MYK4TUW5RDKXJG3OZSMXZTT4IWWKQYC3SJ35TFORYYT672CJLO6A";
+    //private final String USERNAME = "detecteur-chute@fallz";
+    private final String USERNAME = "Back";
+    //private final String PASSWORD = "NNSXS.NXMX24ZDGYOOYOL435B2UWISKYPRVALQJMKMTPA.MYK4TUW5RDKXJG3OZSMXZTT4IWWKQYC3SJ35TFORYYT672CJLO6A";
+    private final String PASSWORD = "FallZ25*";
 
-    private final String MQTT_HOST_NAME = "eu2.cloud.thethings.industries";
+    //private final String MQTT_HOST_NAME = "eu2.cloud.thethings.industries";
+    private final String MQTT_HOST_NAME = "localhost";
     private final int MQTT_HOST_PORT = 1883;
-    private final String MQTT_CLIENT_ID = "Subscribe_DashBoard_1";
-    private final String TOPIC = "v3/" + APPLICATION_ID + "@" + TENANT_ID + "/devices/" + DEVICE_ID + "/up";
+    //private final String MQTT_CLIENT_ID = "Subscribe_DashBoard_1";
+    private final String MQTT_CLIENT_ID = "Back";
+    //private final String TOPIC = "v3/" + APPLICATION_ID + "@" + TENANT_ID + "/devices/" + DEVICE_ID + "/up";
+    private final String TOPIC = "fallz/fall";
 
     private MqttClient client;
 
