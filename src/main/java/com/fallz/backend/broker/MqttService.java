@@ -1,5 +1,5 @@
 package com.fallz.backend.broker;
-import com.fallz.backend.entities.Fall;
+import com.fallz.backend.entities.*;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fallz.backend.entities.Coordonates;
-import com.fallz.backend.entities.Parcours;
 import com.fallz.backend.repositories.CoordonatesRepository;
 import com.fallz.backend.repositories.ParcoursRepository;
 import com.fallz.backend.repositories.FallRepository;
 import com.fallz.backend.repositories.DeviceRepository;
-import com.fallz.backend.entities.Person;
 import com.fallz.backend.repositories.PersonRepository;
 
 import java.io.IOException;
@@ -27,6 +24,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class MqttService {
@@ -59,7 +58,6 @@ public class MqttService {
     private final int MQTT_HOST_PORT = 1883;
     private final String MQTT_CLIENT_ID = "Back";
     private final String FALL_TOPIC = "fallz/fall";
-    private final String ROUTE_TOPIC = "fallz/route";
 
     private MqttClient client;
 
@@ -86,31 +84,28 @@ public class MqttService {
                     logger.info("📥 Message reçu sur {} : {}", topic, payload);
 
                     try {
-                        // Parse le message en JSON
+                        // Parse the message as JSON
                         JsonNode jsonNode = objectMapper.readTree(payload);
 
-                        // Déterminer le type de message en fonction du topic
-                        if (topic.equals(FALL_TOPIC)) {
-                            handleFallMessage(jsonNode);
-                        } else if (topic.equals(ROUTE_TOPIC)) {
-                            handleRouteMessage(jsonNode);
-                        } else if (jsonNode.has("uplink_message") && jsonNode.get("uplink_message").has("decoded_payload")) {
-                            // Format TTN - analyser le contenu pour déterminer le type
-                            JsonNode decodedPayload = jsonNode.get("uplink_message").get("decoded_payload");
+                        // Debug logging to help diagnose issues
+                        logger.debug("Structure JSON reçue: {}", jsonNode.toString());
 
-                            if (decodedPayload.has("sos") || decodedPayload.has("SOS") ||
-                                decodedPayload.has("fall") || decodedPayload.has("FALL")) {
-                                handleFallMessage(decodedPayload);
-                            } else if (decodedPayload.has("coordinates") || decodedPayload.has("position")) {
-                                handleRouteMessage(decodedPayload);
+                        // Check the "type" field to determine the message type
+                        if (jsonNode.has("type")) {
+                            String type = jsonNode.get("type").asText();
+                            if ("fall".equals(type)) {
+                                handleFallMessage(jsonNode);
+                            } else if ("parcours".equals(type)) {
+                                handleRouteMessage(jsonNode);
                             } else {
-                                logger.warn("Type de message non reconnu: {}", payload);
+                                logger.warn("Type de message non reconnu: {}", type);
                             }
                         } else {
-                            logger.warn("Format de message non reconnu: {}", payload);
+                            logger.warn("Champ 'type' manquant dans le message: {}", payload);
                         }
                     } catch (IOException e) {
                         logger.error("Erreur lors du parsing JSON: {}", e.getMessage());
+                        logger.debug("Contenu JSON invalide: {}", payload);
                     }
                 }
 
@@ -122,8 +117,7 @@ public class MqttService {
 
             client.connect(options);
             client.subscribe(FALL_TOPIC);
-            client.subscribe(ROUTE_TOPIC);
-            logger.info("✅ Connecté à MQTT et abonné à {} et {}", FALL_TOPIC, ROUTE_TOPIC);
+            logger.info("✅ Connecté à MQTT et abonné à {}", FALL_TOPIC);
 
         } catch (MqttException e) {
             logger.error("❌ Erreur de connexion au broker MQTT : {}", e.getMessage());
@@ -136,54 +130,169 @@ public class MqttService {
     private void handleRouteMessage(JsonNode payload) {
         logger.info("Traitement des données de parcours");
         try {
-            // Extraction des coordonnées
-            JsonNode coordinates = null;
-            double latitude = 0.0;
-            double longitude = 0.0;
+            // Extract device ID from the payload
+            UUID deviceId = null;
+            if (payload.has("device_id")) {
+                try {
+                    deviceId = UUID.fromString(payload.get("device_id").asText());
+                    logger.info("Device ID trouvé dans le payload: {}", deviceId);
+                } catch (IllegalArgumentException e) {
+                    logger.error("ID de device invalide dans le payload: {}", payload.get("device_id").asText());
+                }
+            } else if (payload.has("person") && payload.get("person").has("id")) {
+                // If no device_id but person id is provided, try to get the device from the person
+                String personId = payload.get("person").get("id").asText();
+                Optional<Person> person = personRepository.findById(UUID.fromString(personId));
+                if (person.isPresent() && person.get().getDevice() != null) {
+                    deviceId = person.get().getDevice().getId();
+                    logger.info("Device ID trouvé via person ID: {}", deviceId);
+                } else {
+                    logger.warn("Personne ou appareil non trouvé pour l'ID: {}", personId);
+                }
+            }
 
-            // Différentes possibilités de format pour les coordonnées
-            if (payload.has("coordinates") && payload.get("coordinates").isArray()) {
-                coordinates = payload.get("coordinates");
-                latitude = coordinates.get(0).asDouble();
-                longitude = coordinates.get(1).asDouble();
-            } else if (payload.has("position")) {
-                JsonNode position = payload.get("position");
-                latitude = position.has("lat") ? position.get("lat").asDouble() : 0.0;
-                longitude = position.has("lon") ? position.get("lon").asDouble() : 0.0;
-            } else if (payload.has("latitude") && payload.has("longitude")) {
-                latitude = payload.get("latitude").asDouble();
-                longitude = payload.get("longitude").asDouble();
-            } else {
-                logger.warn("Format de coordonnées non reconnu dans le message");
+            if (deviceId == null) {
+                logger.error("Pas de device_id valide trouvé dans le message, impossible de créer un parcours");
                 return;
             }
 
-            logger.info("Coordonnées extraites: lat={}, long={}", latitude, longitude);
+            // Now that we have a device ID, get the device
+            var optionalDevice = deviceRepository.findById(deviceId);
+            if (optionalDevice.isEmpty()) {
+                logger.error("Device avec ID {} non trouvé dans la base de données", deviceId);
+                return;
+            }
+            Device device = optionalDevice.get();
 
-            String deviceId = payload.has("device_id") ? payload.get("device_id").asText() : null;
-
-            // Récupération du parcours actif pour associer les coordonnées
-            Optional<Parcours> activeParcours = findActiveParcours(deviceId);
-
-            // Création d'une nouvelle entité Coordonates
-            Coordonates coordonates = new Coordonates();
-            coordonates.setIdCoordonates(UUID.randomUUID());
-            coordonates.setLatitude(latitude);
-            coordonates.setLongitude(longitude);
-            coordonates.setDate(LocalDateTime.now());
-
-            if (activeParcours.isPresent()) {
-                coordonates.setParcours(activeParcours.get());
-
-                // Sauvegarde des coordonnées dans la base de données
-                coordonatesRepository.save(coordonates);
-                logger.info("Coordonnées sauvegardées en base de données avec ID: {}", coordonates.getIdCoordonates());
-            } else {
-                logger.error("Impossible de sauvegarder les coordonnées: aucun parcours actif trouvé");
+            // Check for coordinates in different possible fields
+            List<JsonNode> coordinateNodes = new ArrayList<>();
+            if (payload.has("coordonates") && payload.get("coordonates").isArray()) {
+                JsonNode coordonatesArray = payload.get("coordonates");
+                for (JsonNode node : coordonatesArray) {
+                    coordinateNodes.add(node);
+                }
+            }
+            else if (payload.has("coordonate") && payload.get("coordonate").isArray()) {
+                JsonNode coordonateArray = payload.get("coordonate");
+                for (JsonNode node : coordonateArray) {
+                    coordinateNodes.add(node);
+                }
+            }
+            else if (payload.has("coordonate") && payload.get("coordonate").isObject()) {
+                coordinateNodes.add(payload.get("coordonate"));
             }
 
+            if (coordinateNodes.isEmpty()) {
+                logger.warn("Aucune coordonnée trouvée dans le message. Format attendu: 'coordonates' ou 'coordonate'");
+                return;
+            }
+
+            // Process all coordinates and find min/max dates
+            LocalDateTime minDate = null;
+            LocalDateTime maxDate = null;
+            List<CoordinateData> processedCoordinates = new ArrayList<>();
+
+            for (JsonNode coordNode : coordinateNodes) {
+                if (!coordNode.has("latitude") || !coordNode.has("longitude")) {
+                    logger.warn("Les champs latitude et/ou longitude sont manquants pour une coordonnée, ignorée");
+                    continue;
+                }
+
+                double latitude = coordNode.get("latitude").asDouble();
+                double longitude = coordNode.get("longitude").asDouble();
+
+                // Validate coordinate values
+                if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
+                    latitude = Math.max(-90, Math.min(90, latitude));
+                    longitude = Math.max(-180, Math.min(180, longitude));
+                }
+
+                // Parse the date
+                LocalDateTime dateTime = LocalDateTime.now();
+                if (coordNode.has("date") && !coordNode.get("date").asText().isEmpty()) {
+                    try {
+                        String dateStr = coordNode.get("date").asText();
+                        // Try parsing as timestamp first
+                        try {
+                            long timestamp = Long.parseLong(dateStr);
+                            dateTime = LocalDateTime.ofEpochSecond(timestamp, 0, java.time.ZoneOffset.UTC);
+                        } catch (NumberFormatException e) {
+                            // Try as ISO format
+                            try {
+                                dateTime = LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME);
+                            } catch (DateTimeParseException ex) {
+                                logger.warn("Format de date non reconnu '{}', utilisation de la date actuelle", dateStr);
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.warn("Erreur lors du parsing de la date: {}", e.getMessage());
+                    }
+                }
+
+                // Update min and max dates
+                if (minDate == null || dateTime.isBefore(minDate)) {
+                    minDate = dateTime;
+                }
+                if (maxDate == null || dateTime.isAfter(maxDate)) {
+                    maxDate = dateTime;
+                }
+
+                // Store the processed coordinate for later use
+                processedCoordinates.add(new CoordinateData(latitude, longitude, dateTime));
+            }
+
+            if (processedCoordinates.isEmpty()) {
+                logger.warn("Aucune coordonnée valide n'a pu être extraite");
+                return;
+            }
+
+            // If minDate or maxDate is still null, use current time
+            if (minDate == null) minDate = LocalDateTime.now();
+            if (maxDate == null) maxDate = LocalDateTime.now();
+
+            // Create a new parcours with the min and max dates
+            Parcours newParcours = new Parcours();
+            newParcours.setId(UUID.randomUUID());
+            newParcours.setDevice(device);
+            newParcours.setStartDate(minDate);
+            newParcours.setEndDate(maxDate);
+
+            // Save the new parcours
+            parcoursRepository.save(newParcours);
+            logger.info("Nouveau parcours créé avec ID: {}, startDate: {}, endDate: {}",
+                    newParcours.getId(), minDate, maxDate);
+
+            // Now save all coordinates with the new parcours
+            for (CoordinateData coord : processedCoordinates) {
+                Coordonates coordonates = new Coordonates();
+                coordonates.setIdCoordonates(UUID.randomUUID());
+                coordonates.setLatitude(coord.latitude);
+                coordonates.setLongitude(coord.longitude);
+                coordonates.setDate(coord.dateTime);
+                coordonates.setParcours(newParcours);
+
+                coordonatesRepository.save(coordonates);
+            }
+
+            logger.info("{} coordonnées de parcours sauvegardées avec succès", processedCoordinates.size());
+
         } catch (Exception e) {
-            logger.error("Erreur lors du traitement des coordonnées: {}", e.getMessage());
+            logger.error("Erreur lors du traitement des données de parcours: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Classe utilitaire pour stocker temporairement les données de coordonnées
+     */
+    private static class CoordinateData {
+        public double latitude;
+        public double longitude;
+        public LocalDateTime dateTime;
+
+        public CoordinateData(double latitude, double longitude, LocalDateTime dateTime) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.dateTime = dateTime;
         }
     }
 
