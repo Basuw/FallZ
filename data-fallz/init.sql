@@ -6,12 +6,12 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE Person(
-                       id_person UUID,
-                       id_user UUID,
-                       firstname VARCHAR(50),
-                       lastname VARCHAR(50),
-                       PRIMARY KEY (id_person),
-                       FOREIGN KEY (id_user) REFERENCES "user"(id_user)
+    id_person UUID,
+    id_user UUID,
+    firstname VARCHAR(50),
+    lastname VARCHAR(50),
+    PRIMARY KEY (id_person),
+    FOREIGN KEY (id_user) REFERENCES "user"(id_user)
 );
 
 CREATE TABLE Device(
@@ -53,6 +53,8 @@ CREATE TABLE  Coordonates(
 CREATE TABLE Fall(
     id_fall UUID,
     id_coordonates UUID,
+    id_person UUID,
     PRIMARY KEY(id_fall),
-    FOREIGN KEY (id_coordonates) REFERENCES Coordonates(id_coordonates)
+    FOREIGN KEY (id_coordonates) REFERENCES Coordonates(id_coordonates),
+    FOREIGN KEY (id_person) REFERENCES Person(id_person)
 );
