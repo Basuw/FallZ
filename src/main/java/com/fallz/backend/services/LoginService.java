@@ -68,8 +68,6 @@ public class LoginService {
 		User user = userRepository.save(User.builder().mail(dto.getMail())
 				.password(passwordEncoder.encode(dto.getPassword())).build());
 
-		deviceRepository.save(Device.builder().build());
-
 		return user;
 	}
 }

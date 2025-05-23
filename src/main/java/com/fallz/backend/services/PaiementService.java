@@ -1,5 +1,6 @@
 package com.fallz.backend.services;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class PaiementService {
 	private UserRepository userRepository;
 
 	@Transactional(readOnly = true)
-	public Float getPaiement(UUID userId) {
+	public BigDecimal getPaiement(UUID userId) {
 		return paiementRepository
 				.findByUserAndIsPaid(userRepository.findById(userId)
 						.orElseThrow(() -> new EntityNotFoundException("User not found")), false)

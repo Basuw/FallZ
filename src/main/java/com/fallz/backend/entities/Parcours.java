@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,6 +35,7 @@ public class Parcours {
 
     @ManyToOne
     @JoinColumn(name = "id_device", nullable = false)
+    @JsonIgnore
     private Device device;
 
     @Column(name = "start_date")

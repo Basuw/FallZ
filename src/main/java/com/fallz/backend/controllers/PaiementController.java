@@ -1,5 +1,6 @@
 package com.fallz.backend.controllers;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class PaiementController {
 	private PaiementService paiementService;
 	
 	@GetMapping(path = "/{userId}")
-	public ResponseEntity<Float> getBill(@PathVariable String userId) {
+	public ResponseEntity<BigDecimal> getBill(@PathVariable String userId) {
 		return ResponseEntity.ok(paiementService.getPaiement(UUID.fromString(userId)));
 	}
 }
