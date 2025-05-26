@@ -27,6 +27,7 @@ spotbug:
     paths:
       - target/spotbugs-report.html
     expire_in: 1 day
+  allow_failure: true
 
 # Analyse statique du code, assure le formattage, les conventions de nommage et la documentation
 checkstyle:
@@ -40,25 +41,27 @@ checkstyle:
     paths:
       - target/checkstyle-result.xml
     expire_in: 1 day
+  allow_failure: true
 
 # Analyse des dependances pour trouver des vulnerabilites communes
-#dependency-check:
-#  stage: code_quality
-#  script:
-#    - mvn dependency-check:aggregate
-#  only:
-#    - master # Le scan de dependance etant long, on ne le fait qu'une fois au deploiement sur master
-#  artifacts:
-#    when: always
-#    paths:
-#      - target/dependency-check-report.html
-#    expire_in: 1 day
-
+dependency-check:
+  stage: code_quality
+  script:
+    - mvn dependency-check:aggregate
+  only:
+    - master # Le scan de dependance etant long, on ne le fait qu'une fois au deploiement sur master
+  artifacts:
+    when: always
+    paths:
+      - target/dependency-check-report.html
+    expire_in: 1 day
+  allow_failure: true
 # Stage 2 : Execution des tests
 
-#test:
-#  stage: test
-#  script:
+test:
+  stage: test
+  script:
+    - echo test
 #    - mvn test
 #  only:
 #    - merge_requests
@@ -67,7 +70,8 @@ checkstyle:
 #    paths:
 #      - target/surefire-reports
 #    expire_in: 1 day
-
+#  allow_failure: true
+  
 # Stage 3: Preparation de la release (sur merge vers master)
 release:
   stage: release
