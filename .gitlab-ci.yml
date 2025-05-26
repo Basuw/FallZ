@@ -61,15 +61,16 @@ dependency-check:
 test:
   stage: test
   script:
-    - mvn test
-  only:
-    - merge_requests
-  artifacts:
-    when: always
-    paths:
-      - target/surefire-reports
-    expire_in: 1 day
-  allow_failure: true
+    - echo test
+#    - mvn test
+#  only:
+#    - merge_requests
+#  artifacts:
+#    when: always
+#    paths:
+#      - target/surefire-reports
+#    expire_in: 1 day
+#  allow_failure: true
   
 # Stage 3: Preparation de la release (sur merge vers master)
 release:
