@@ -115,6 +115,38 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+            <plugin>
+		      <groupId>com.github.spotbugs</groupId>
+		      <artifactId>spotbugs-maven-plugin</artifactId>
+		      <version>4.9.3.0</version>
+		      <executions>
+		        <execution>
+		          <goals>
+		            <goal>check</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
+		    <plugin>
+		      <groupId>org.owasp</groupId>
+		      <artifactId>dependency-check-maven</artifactId>
+		      <version>12.1.0</version>
+		      <executions>
+		        <execution>
+		          <goals>
+		            <goal>aggregate</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
+	        <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-checkstyle-plugin</artifactId>
+		      <version>3.6.0</version>
+		      <configuration>
+		        <suppressionsLocation>src/main/resources/checkstyle-suppressions.xml</suppressionsLocation>
+		      </configuration>
+		    </plugin>
 		</plugins>
 	</build>
 </project>
