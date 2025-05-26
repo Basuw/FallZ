@@ -7,7 +7,15 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,11 +29,13 @@ import lombok.NoArgsConstructor;
 public class Parcours {
 
     @Id
-    @Column(name = "id_parcours", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_parcours")
     private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "id_device", nullable = false)
+    @JsonIgnore
     private Device device;
 
     @Column(name = "start_date")

@@ -24,6 +24,7 @@ CREATE TABLE Device(
 CREATE TABLE Paiement(
     id_paiement UUID,
     id_user UUID,
+    is_paid boolean,
     amount NUMERIC(10,2),
     date TIMESTAMP,
     PRIMARY KEY(id_paiement),
@@ -40,13 +41,13 @@ CREATE TABLE Parcours(
 );
 
 CREATE TABLE  Coordonates(
-                             id_coordonates UUID,
-                             id_parcours UUID,
-                             latitude NUMERIC(15,8),
-                             longitude NUMERIC(15,8),
-                             date TIMESTAMP,
-                             PRIMARY KEY(id_coordonates),
-                             FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours)
+    id_coordonates UUID,
+    id_parcours UUID,
+    latitude NUMERIC(15,8),
+    longitude NUMERIC(15,8),
+    date TIMESTAMP,
+    PRIMARY KEY(id_coordonates),
+    FOREIGN KEY (id_parcours) REFERENCES Parcours(id_parcours)
 );
 
 CREATE TABLE Fall(

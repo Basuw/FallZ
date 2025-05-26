@@ -26,24 +26,22 @@ public class ParcoursService {
 	private ParcoursRepository parcoursRepository;
 
 	@Autowired
-	private UserRepository userRepository;
+	private CoordonatesRepository coordonatesRepository;
 
 	@Autowired
-	private CoordonatesRepository coordonatesRepository;
-    @Autowired
-    private PersonRepository personRepository;
-    @Autowired
-    private DeviceRepository deviceRepository;
+	private DeviceRepository deviceRepository;
 
 	@Transactional(readOnly = true)
-	public List<Parcours> getParcoursByPersonId(UUID id) {
-		Person person = personRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Person not found"));
-		return parcoursRepository.findByDevice(person.getDevice());
+	public List<Parcours> getParcoursByDeviceId(UUID id) {
+		Device device = deviceRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Device not found"));
+		return parcoursRepository.findByDevice(device);
 	}
 
 	@Transactional
 	public Parcours createParcours(UUID id, List<AddCoordonateDTO> coordonates) {
-		Person person = personRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Person not found"));
+		Device device = deviceRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Device not found"));
 
 		Instant startDate = Instant.now();
 
@@ -52,7 +50,7 @@ public class ParcoursService {
 
 		long randomSeconds = ThreadLocalRandom.current().nextLong(minSeconds, maxSeconds + 1);
 
-		Parcours parcours = Parcours.builder().device(person.getDevice())
+		Parcours parcours = Parcours.builder().device(device)
 				.startDate(LocalDateTime.ofInstant(startDate, ZoneId.systemDefault()))
 				.endDate(LocalDateTime.ofInstant(startDate.plusSeconds(randomSeconds), ZoneId.systemDefault())).build();
 
@@ -80,6 +78,7 @@ public class ParcoursService {
 
 		existingCoordonates.addAll(coordonates.stream().map(coordonate -> {
 			Coordonates newCoordonates = new Coordonates(coordonate.getLatitude(), coordonate.getLongitude());
+			newCoordonates.setDate(LocalDateTime.now());
 			newCoordonates.setParcours(parcours);
 			return coordonatesRepository.save(newCoordonates);
 		}).collect(Collectors.toList()));

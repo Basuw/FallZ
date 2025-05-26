@@ -1,53 +1,77 @@
-# This file is a template, and might need editing before it works on your project.
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+image: maven:3.9.6-eclipse-temurin-21
 
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
-#
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
-
-stages:          # List of stages for jobs, and their order of execution
-  - build
+stages:
+  - code_quality
   - test
-  - deploy
+  - release
 
-include:
-  - template: Security/Dependency-Scanning.gitlab-ci.yml
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
+cache:
+  key: maven-cache
+  paths:
+    - .m2/repository
+
+# Stage 1 : Analyse de la qualite du code
+
+# Analyse les potentielles erreurs de logique (manipulation incorrecte des objets, erreur d'injection)
+spotbug:
+  stage: code_quality
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
-  allow_failure: true  # This job can fail without affecting the pipeline status.
+    - mvn spotbugs:check
+  only:
+    - merge_requests
+  artifacts:
+    when: always
+    paths:
+      - target/spotbugs-report.html
+    expire_in: 1 day
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
+# Analyse statique du code, assure le formattage, les conventions de nommage et la documentation
+checkstyle:
+  stage: code_quality
   script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
-  allow_failure: true  # This job can fail without affecting the pipeline status.
+    - mvn checkstyle:check
+  only:
+    - merge_requests
+  artifacts:
+    when: always
+    paths:
+      - target/checkstyle-result.xml
+    expire_in: 1 day
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
+# Analyse des dependances pour trouver des vulnerabilites communes
+dependency-check:
+  stage: code_quality
   script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
-  allow_failure: true  # This job can fail without affecting the pipeline status.
+    - mvn dependency-check:aggregate
+  only:
+    - master # Le scan de dependance etant long, on ne le fait qu'une fois au deploiement sur master
+  artifacts:
+    when: always
+    paths:
+      - target/dependency-check-report.html
+    expire_in: 1 day
 
-deploy-job:      # This job runs in the deploy stage.
-  environment: production
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+# Stage 2 : Execution des tests
+
+test:
+  stage: test
   script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
-  allow_failure: true  # This job can fail without affecting the pipeline status.
+    - mvn test
+  only:
+    - merge_requests
+  artifacts:
+    when: always
+    paths:
+      - target/surefire-reports
+    expire_in: 1 day
+
+# Stage 3: Preparation de la release (sur merge vers master)
+release:
+  stage: release
+  script:
+    - mvn release:prepare -B
+  only:
+    - master

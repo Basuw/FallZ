@@ -32,14 +32,14 @@ public class ParcoursController {
 	@Autowired
 	private ParcoursService parcoursService;
 
-	@GetMapping(path = "/{userId}")
-	public List<Parcours> getParoursByUserId(@PathVariable UUID userId) {
-		return parcoursService.getParcoursByPersonId(userId);
+	@GetMapping(path = "/{deviceId}")
+	public List<Parcours> getParoursByUserId(@PathVariable UUID deviceId) {
+		return parcoursService.getParcoursByDeviceId(deviceId);
 	}
 
-	@PostMapping(path = "/{userId}")
-	public Parcours createParcours(@PathVariable UUID userId, @RequestBody List<AddCoordonateDTO> coordonates) {
-		return parcoursService.createParcours(userId, coordonates);
+	@PostMapping(path = "/{deviceId}")
+	public Parcours createParcours(@PathVariable UUID deviceId, @RequestBody List<AddCoordonateDTO> coordonates) {
+		return parcoursService.createParcours(deviceId, coordonates);
 	}
 
 	@PatchMapping(path = "/{parcoursId}")

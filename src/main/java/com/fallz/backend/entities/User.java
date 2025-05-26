@@ -31,9 +31,11 @@ public class User {
     private String mail;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Person> persons = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Paiement> paiements = new ArrayList<>();
 }
 

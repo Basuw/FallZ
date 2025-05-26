@@ -23,7 +23,9 @@ public class CoordonatesService {
 
 	@Transactional(readOnly = true)
 	public List<Coordonates> getCoordonatesByParcoursId(UUID parcoursId) {
-		return coordonatesRepository.findByParcours(parcoursRepository.findById(parcoursId)
-				.orElseThrow(() -> new EntityNotFoundException("Parcours not found")));
+		return coordonatesRepository
+				.findByParcours(parcoursRepository.findById(parcoursId)
+						.orElseThrow(() -> new EntityNotFoundException("Parcours not found")))
+				.stream().sorted((c1, c2) -> c1.getDate().compareTo(c2.getDate())).toList();
 	}
 }

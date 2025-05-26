@@ -6,13 +6,11 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.fallz.backend.entities.Paiement;
 import com.fallz.backend.entities.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
-	
-	Optional<User> findByMail(String mail);
-	
-	boolean existsByMail(String mail);
-	
+public interface PaiementRepository extends JpaRepository<Paiement, UUID>{
+
+	public Optional<Paiement> findByUserAndIsPaid(User user, boolean isPaid);
 }
