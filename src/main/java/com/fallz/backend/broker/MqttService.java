@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -99,13 +100,13 @@ public class MqttService {
 				}
 
 				@Override
-				public void messageArrived(String topic, MqttMessage message) {
+				public void messageArrived(String topic, MqttMessage message) throws JsonProcessingException {
 					String payload = new String(message.getPayload());
 					logger.info("📥 Message reçu sur {} : {}", topic, payload);
 
 					// try {
 					// Parse the message as JSON
-					// JsonNode jsonNode = objectMapper.readTree(payload);
+
 
 					// Debug logging to help diagnose issues
 					// logger.debug("Structure JSON reçue: {}", jsonNode.toString());
@@ -114,7 +115,7 @@ public class MqttService {
 					String[] csvValues = payload.split(",");
 
 					if (csvValues.length > 0) {
-						
+
 		                String firstValue = csvValues[0].trim(); // Récupérer la première valeur et supprimer les espaces blancs
 
 		                logger.debug("Première valeur CSV extraite: {}", firstValue);
@@ -124,7 +125,7 @@ public class MqttService {
 						logger.debug("Première valeur CSV extraite: {}", firstValue);
 
 						ObjectNode rootNode = objectMapper.createObjectNode();
-						
+
 				        rootNode.put("type", csvValues[0].trim()); // Should be "fall"
 
 				        // Coordonate object
@@ -140,9 +141,12 @@ public class MqttService {
 				        personNode.put("id", csvValues[4].trim());
 
 				        rootNode.set("person", personNode);
-				        
+
 				        handleFallMessage(rootNode);
-		                }
+		                }else{
+							JsonNode jsonNode = objectMapper.readTree(payload);
+							handleRouteMessage(jsonNode);
+						}
 						}
 
 					// Check the "type" field to determine the message type
@@ -183,7 +187,7 @@ public class MqttService {
 	 * Traitement des données de parcours (positions GPS)
 	 */
 	@Transactional
-	private void handleRouteMessage(JsonNode payload) {
+	public void handleRouteMessage(JsonNode payload) {
 		logger.info("Traitement des données de parcours");
 		try {
 			// Extract device ID from the payload
