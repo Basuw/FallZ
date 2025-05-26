@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +35,8 @@ import com.fallz.backend.repositories.DeviceRepository;
 import com.fallz.backend.repositories.FallRepository;
 import com.fallz.backend.repositories.ParcoursRepository;
 import com.fallz.backend.repositories.PersonRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -99,7 +102,7 @@ public class MqttService {
 				}
 
 				@Override
-				public void messageArrived(String topic, MqttMessage message) {
+				public void messageArrived(String topic, MqttMessage message) throws JsonMappingException, JsonProcessingException {
 					String payload = new String(message.getPayload());
 					logger.info("📥 Message reçu sur {} : {}", topic, payload);
 
@@ -110,8 +113,27 @@ public class MqttService {
 					// Debug logging to help diagnose issues
 					// logger.debug("Structure JSON reçue: {}", jsonNode.toString());
 
+					// 1. Parse the JSON payload
+		            JsonNode rootNode = objectMapper.readTree(payload);
+
+		            // 2. Access the 'frm_payload' field
+		            // Naviguer dans la structure : rootNode -> "uplink_message" -> "frm_payload"
+		            JsonNode frmPayloadNode = rootNode.path("uplink_message").path("frm_payload");
+
+		            if (frmPayloadNode.isMissingNode()) {
+		                System.err.println("Le champ 'frm_payload' est introuvable dans le payload.");
+		                return;
+		            }
+
+		            String base64EncodedPayload = frmPayloadNode.asText();
+		            System.out.println("frm_payload encodé en Base64 : " + base64EncodedPayload);
+
+		            // 3. Decode the Base64 string
+		            byte[] decodedBytes = Base64.getDecoder().decode(base64EncodedPayload);
+		            String decodedString = new String(decodedBytes);
+
 					// Parse as CSV :
-					String[] csvValues = payload.split(",");
+					String[] csvValues = decodedString.split(",");
 
 					if (csvValues.length > 0) {
 						
@@ -123,9 +145,9 @@ public class MqttService {
 
 						logger.debug("Première valeur CSV extraite: {}", firstValue);
 
-						ObjectNode rootNode = objectMapper.createObjectNode();
+						ObjectNode rootNode2 = objectMapper.createObjectNode();
 						
-				        rootNode.put("type", csvValues[0].trim()); // Should be "fall"
+						rootNode2.put("type", csvValues[0].trim()); // Should be "fall"
 
 				        // Coordonate object
 				        ObjectNode coordonateNode = objectMapper.createObjectNode();
@@ -133,15 +155,15 @@ public class MqttService {
 				        coordonateNode.put("longitude", Double.parseDouble(csvValues[2].trim()));
 				        coordonateNode.put("date", csvValues[3].trim());
 
-				        rootNode.set("coordonate", coordonateNode);
+				        rootNode2.set("coordonate", coordonateNode);
 
 				        // Person object
 				        ObjectNode personNode = objectMapper.createObjectNode();
 				        personNode.put("id", csvValues[4].trim());
 
-				        rootNode.set("person", personNode);
+				        rootNode2.set("person", personNode);
 				        
-				        handleFallMessage(rootNode);
+				        handleFallMessage(rootNode2);
 		                }
 						}
 
