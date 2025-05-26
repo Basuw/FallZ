@@ -61,7 +61,7 @@ public class MqttService {
 
     private MqttClient client;
 
-    //@PostConstruct
+    @PostConstruct
     public void start() {
         try {
             String brokerUri = "tcp://" + MQTT_HOST_NAME + ":" + MQTT_HOST_PORT;
