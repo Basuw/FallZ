@@ -44,5 +44,6 @@ public class Parcours {
     private LocalDateTime endDate;
 
     @OneToMany(mappedBy = "parcours", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Coordonates> coordonates = new ArrayList<>();
 }

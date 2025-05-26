@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "person")
 public class Person {
-	
+
     @Id
     @Column(name = "id_person", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -57,5 +57,6 @@ public class Person {
     private Device device;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Fall> falls = new ArrayList<>();
 }
