@@ -452,6 +452,7 @@ public class MqttService {
                                 newParcours.setId(UUID.randomUUID());
                                 newParcours.setDevice(person.getDevice());
                                 newParcours.setStartDate(LocalDateTime.now());
+                                newParcours.setEndDate(LocalDateTime.now());
                                 parcoursRepository.save(newParcours);
                                 coordonates.setParcours(newParcours);
                             }
