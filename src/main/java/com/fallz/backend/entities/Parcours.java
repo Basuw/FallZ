@@ -29,7 +29,6 @@ import lombok.NoArgsConstructor;
 public class Parcours {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id_parcours")
     private UUID id;
 

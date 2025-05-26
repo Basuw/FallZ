@@ -26,7 +26,6 @@ public class Coordonates {
 
     @Id
     @Column(name = "id_coordonates", nullable = false)
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idCoordonates;
 
     @ManyToOne
