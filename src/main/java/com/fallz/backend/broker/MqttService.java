@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -74,13 +75,13 @@ public class MqttService {
 //	private final String USERNAME = "Back";
 //	private final String PASSWORD = "FallZ25*";
 
-	//TTN MQTT
-    private final String MQTT_HOST_NAME = "eu2.cloud.thethings.industries";
-    private final int MQTT_HOST_PORT = 1883;
-    private final String MQTT_CLIENT_ID = "Subscribe_DashBoard_1";
-    private final String FALL_TOPIC = "v3/" + APPLICATION_ID + "@" + TENANT_ID + "/devices/" + DEVICE_ID + "/up";
-    private final String USERNAME = "detecteur-chute@fallz";
-    private final String PASSWORD = "NNSXS.NXMX24ZDGYOOYOL435B2UWISKYPRVALQJMKMTPA.MYK4TUW5RDKXJG3OZSMXZTT4IWWKQYC3SJ35TFORYYT672CJLO6A";
+	// TTN MQTT
+	private final String MQTT_HOST_NAME = "eu2.cloud.thethings.industries";
+	private final int MQTT_HOST_PORT = 1883;
+	private final String MQTT_CLIENT_ID = "Subscribe_DashBoard_1";
+	private final String FALL_TOPIC = "v3/" + APPLICATION_ID + "@" + TENANT_ID + "/devices/" + DEVICE_ID + "/up";
+	private final String USERNAME = "detecteur-chute@fallz";
+	private final String PASSWORD = "NNSXS.NXMX24ZDGYOOYOL435B2UWISKYPRVALQJMKMTPA.MYK4TUW5RDKXJG3OZSMXZTT4IWWKQYC3SJ35TFORYYT672CJLO6A";
 
 	private MqttClient client;
 
@@ -102,70 +103,71 @@ public class MqttService {
 				}
 
 				@Override
-				public void messageArrived(String topic, MqttMessage message) throws JsonMappingException, JsonProcessingException {
+				public void messageArrived(String topic, MqttMessage message)
+						throws JsonMappingException, JsonProcessingException {
 					String payload = new String(message.getPayload());
 					logger.info("📥 Message reçu sur {} : {}", topic, payload);
 
 					// try {
 					// Parse the message as JSON
-					// JsonNode jsonNode = objectMapper.readTree(payload);
 
 					// Debug logging to help diagnose issues
 					// logger.debug("Structure JSON reçue: {}", jsonNode.toString());
 
 					// 1. Parse the JSON payload
-		            JsonNode rootNode = objectMapper.readTree(payload);
+					JsonNode rootNode = objectMapper.readTree(payload);
 
-		            // 2. Access the 'frm_payload' field
-		            // Naviguer dans la structure : rootNode -> "uplink_message" -> "frm_payload"
-		            JsonNode frmPayloadNode = rootNode.path("uplink_message").path("frm_payload");
+					// 2. Access the 'frm_payload' field
+					// Naviguer dans la structure : rootNode -> "uplink_message" -> "frm_payload"
+					JsonNode frmPayloadNode = rootNode.path("uplink_message").path("frm_payload");
 
-		            if (frmPayloadNode.isMissingNode()) {
-		                System.err.println("Le champ 'frm_payload' est introuvable dans le payload.");
-		                return;
-		            }
+					if (frmPayloadNode.isMissingNode()) {
+						System.err.println("Le champ 'frm_payload' est introuvable dans le payload.");
+						return;
+					}
 
-		            String base64EncodedPayload = frmPayloadNode.asText();
-		            System.out.println("frm_payload encodé en Base64 : " + base64EncodedPayload);
+					String base64EncodedPayload = frmPayloadNode.asText();
+					System.out.println("frm_payload encodé en Base64 : " + base64EncodedPayload);
 
-		            // 3. Decode the Base64 string
-		            byte[] decodedBytes = Base64.getDecoder().decode(base64EncodedPayload);
-		            String decodedString = new String(decodedBytes);
+					// 3. Decode the Base64 string
+					byte[] decodedBytes = Base64.getDecoder().decode(base64EncodedPayload);
+					String decodedString = new String(decodedBytes);
 
 					// Parse as CSV :
 					String[] csvValues = decodedString.split(",");
 
 					if (csvValues.length > 0) {
-						
-		                String firstValue = csvValues[0].trim(); // Récupérer la première valeur et supprimer les espaces blancs
 
-		                logger.debug("Première valeur CSV extraite: {}", firstValue);
-
-		                if ("fall".equalsIgnoreCase(firstValue)) {
+						String firstValue = csvValues[0].trim(); // Récupérer la première valeur et supprimer les
+																	// espaces blancs
 
 						logger.debug("Première valeur CSV extraite: {}", firstValue);
 
-						ObjectNode rootNode2 = objectMapper.createObjectNode();
-						
-						rootNode2.put("type", csvValues[0].trim()); // Should be "fall"
+						if ("fall".equalsIgnoreCase(firstValue)) {
 
-				        // Coordonate object
-				        ObjectNode coordonateNode = objectMapper.createObjectNode();
-				        coordonateNode.put("latitude", Double.parseDouble(csvValues[1].trim()));
-				        coordonateNode.put("longitude", Double.parseDouble(csvValues[2].trim()));
-				        coordonateNode.put("date", csvValues[3].trim());
+							logger.debug("Première valeur CSV extraite: {}", firstValue);
 
-				        rootNode2.set("coordonate", coordonateNode);
+							ObjectNode rootNode2 = objectMapper.createObjectNode();
 
-				        // Person object
-				        ObjectNode personNode = objectMapper.createObjectNode();
-				        personNode.put("id", csvValues[4].trim());
+							rootNode2.put("type", csvValues[0].trim()); // Should be "fall"
 
-				        rootNode2.set("person", personNode);
-				        
-				        handleFallMessage(rootNode2);
-		                }
+							// Coordonate object
+							ObjectNode coordonateNode = objectMapper.createObjectNode();
+							coordonateNode.put("latitude", Double.parseDouble(csvValues[1].trim()));
+							coordonateNode.put("longitude", Double.parseDouble(csvValues[2].trim()));
+							coordonateNode.put("date", csvValues[3].trim());
+
+							rootNode2.set("coordonate", coordonateNode);
+
+							// Person object
+							ObjectNode personNode = objectMapper.createObjectNode();
+							personNode.put("id", csvValues[4].trim());
+
+							rootNode2.set("person", personNode);
+
+							handleFallMessage(rootNode2);
 						}
+					}
 
 					// Check the "type" field to determine the message type
 					// if (jsonNode.has("type")) {
@@ -205,7 +207,7 @@ public class MqttService {
 	 * Traitement des données de parcours (positions GPS)
 	 */
 	@Transactional
-	private void handleRouteMessage(JsonNode payload) {
+	public void handleRouteMessage(JsonNode payload) {
 		logger.info("Traitement des données de parcours");
 		try {
 			// Extract device ID from the payload
