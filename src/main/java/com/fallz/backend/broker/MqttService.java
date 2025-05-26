@@ -1,5 +1,6 @@
 package com.fallz.backend.broker;
 import com.fallz.backend.entities.*;
+import jakarta.transaction.Transactional;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,8 @@ public class MqttService {
 
     private MqttClient client;
 
-    //@PostConstruct
+    @PostConstruct
+    @Transactional
     public void start() {
         try {
             String brokerUri = "tcp://" + MQTT_HOST_NAME + ":" + MQTT_HOST_PORT;
@@ -127,7 +129,8 @@ public class MqttService {
     /**
      * Traitement des données de parcours (positions GPS)
      */
-    private void handleRouteMessage(JsonNode payload) {
+    @Transactional
+    public void handleRouteMessage(JsonNode payload) {
         logger.info("Traitement des données de parcours");
         try {
             // Extract device ID from the payload
@@ -354,14 +357,6 @@ public class MqttService {
             coordonates.setLongitude(longitude);
             coordonates.setDate(LocalDateTime.now());
 
-            // Récupération du parcours actif si possible
-            Optional<Parcours> activeParcours = findActiveParcours(deviceId);
-            if (activeParcours.isPresent()) {
-                coordonates.setParcours(activeParcours.get());
-            } else {
-                logger.warn("Pas de parcours actif trouvé pour cette chute");
-            }
-
             // Sauvegarde des coordonnées
             coordonatesRepository.save(coordonates);
 
@@ -369,12 +364,6 @@ public class MqttService {
             Fall fall = new Fall();
             fall.setId(UUID.randomUUID());
             fall.setCoordonates(coordonates);
-
-            // Si les informations du device/personne sont disponibles, les associer
-            if (activeParcours.isPresent() && activeParcours.get().getDevice() != null
-                    && activeParcours.get().getDevice().getPerson() != null) {
-                fall.setPerson(activeParcours.get().getDevice().getPerson());
-            }
 
             // Sauvegarde de la chute
             fallRepository.save(fall);
@@ -443,18 +432,6 @@ public class MqttService {
                         // Si la personne a un appareil associé et que l'appareil a un parcours actif
                         if (person.getDevice() != null) {
                             Optional<Parcours> activeParcours = parcoursRepository.findByDeviceIdAndEndDateIsNull(person.getDevice().getId());
-                            if (activeParcours.isPresent()) {
-                                coordonates.setParcours(activeParcours.get());
-                            } else {
-                                logger.warn("Pas de parcours actif trouvé pour la personne {}", personId);
-                                // On peut éventuellement créer un nouveau parcours pour cette coordonnée
-                                Parcours newParcours = new Parcours();
-                                newParcours.setId(UUID.randomUUID());
-                                newParcours.setDevice(person.getDevice());
-                                newParcours.setStartDate(LocalDateTime.now());
-                                parcoursRepository.save(newParcours);
-                                coordonates.setParcours(newParcours);
-                            }
                         } else {
                             logger.error("La personne {} n'a pas d'appareil associé", personId);
                         }
@@ -466,12 +443,6 @@ public class MqttService {
                 }
             } else {
                 logger.warn("Pas d'ID de personne fourni dans le message");
-            }
-
-            // Si aucun parcours n'a pu être associé à cette coordonnée, on ne peut pas la sauvegarder
-            if (coordonates.getParcours() == null) {
-                logger.error("Impossible de sauvegarder les coordonnées: aucun parcours disponible");
-                return;
             }
 
             // Sauvegarde des coordonnées
@@ -495,20 +466,6 @@ public class MqttService {
         } catch (Exception e) {
             logger.error("Erreur lors du traitement de la chute avec nouveau format: {}", e.getMessage(), e);
         }
-    }
-
-    /**
-     * Méthode utilitaire pour trouver un parcours actif
-     * Soit en utilisant l'ID de l'appareil, soit en prenant le dernier parcours sans date de fin
-     */
-    private Optional<Parcours> findActiveParcours(String deviceId) {
-        if (deviceId != null && !deviceId.isEmpty()) {
-            // Rechercher le device par son ID et récupérer son parcours actif
-            return parcoursRepository.findByDeviceIdAndEndDateIsNull(UUID.fromString(deviceId));
-        }
-
-        // Sinon, prendre le premier parcours actif trouvé (à adapter selon votre logique métier)
-        return parcoursRepository.findByEndDateIsNull().stream().findFirst();
     }
 
     @PreDestroy
