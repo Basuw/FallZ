@@ -1,13 +1,13 @@
 services:
   back-fallz:
-    build: .
+    build: ./Back
     ports:
       - "8080:8080"
     depends_on:
       - bdd-fallz
 
   bdd-fallz:
-    build: ./data-fallz
+    build: ./Data
     environment:
       POSTGRES_DB: FallzBackend
       POSTGRES_USER: api_client

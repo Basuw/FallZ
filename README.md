@@ -1,11 +1,11 @@
 # Fallz Backend
 
-University Porject done for SAÉ - IoT : PoC & PoT in 2nd year of Engineer degree at ISIMA
+University Porject done for SAÉ - IoT : PoC & PoT in 2nd year of Engineer degree at [ISIMA](https://www.isima.fr/)
 
 ## Description
 
-Fall detector for hikers. Embedded systems which detect the fall using a accelerometer and a gyroscope. These Data are handled by a machine learning algorithm to detect if it is a fall or not exported on the arduino.
-It uses Lorawan protocol to transmit the position of the user, obtained with a GPS module. These Data are transmitted via TheThingsStack broker and retrieved by our backend. Possible to create an account with multiple devices, each of them related to one person. You can track all your hikes on a map but also you falls and these data are storde in a PostgreSQL database.
+Fall detector for hikers 🚶🏼‍♂️. Embedded systems which detect the fall using a accelerometer and a gyroscope. These Data are handled by a machine learning algorithm to detect if it is a fall or not exported on the arduino.
+It uses Lorawan protocol to transmit the position of the user, obtained with a GPS module 🌍. These Data are transmitted via TheThingsStack broker and retrieved by our backend. Possible to create an account with multiple devices, each of them related to one person. You can track all your hikes on a map but also you falls and these data are storde in a PostgreSQL database 💾.
 
 ## User notice
 
