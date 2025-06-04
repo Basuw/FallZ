@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion des appareils et utilisateurs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/devices.css">
+</head>
+<body>
+    <div class="devices-container">
+        <h2>Gestion des appareils et utilisateurs</h2>
+        
+        <!-- Formulaire d'ajout -->
+        <div class="add-form">
+            <h3>Ajouter un nouvel appareil avec utilisateur</h3>
+            <div class="form-group">
+                <label for="device-id">Id de l'appareil:</label>
+                <input type="text" id="device-id" placeholder="Ex: 7281dcfd-c8f2-48da-8c70-ce4deb1a5932" required>
+            </div>
+            <div class="form-group">
+                <label for="user-firstname">Prénom:</label>
+                <input type="text" id="user-firstname" placeholder="Ex: Jean" required>
+            </div>
+            <div class="form-group">
+                <label for="user-lastname">Nom:</label>
+                <input type="text" id="user-lastname" placeholder="Ex: Dupont" required>
+            </div>
+            <button id="add-device-btn">Ajouter</button>
+        </div>
+        
+        <!-- Liste des appareils -->
+        <div class="devices-list" id="devices-list">
+            <!-- Les appareils seront ajoutés ici dynamiquement -->
+        </div>
+        
+        <div class="button-group">
+            <button class="back-btn" onclick="window.location.href='index.html'">Retour</button>
+            <button class="logout-btn" onclick="logout()">Se Déconnecter</button>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/devices.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signup</title>
+    <link rel="stylesheet" href="../css/signup.css">
+</head>
+<body>
+    <div class="signup-container">
+        <h2>Signup</h2>
+        <form id="signup-form">
+            <input type="text" id="first-name" placeholder="First name" required>
+            <input type="text" id="last-name" placeholder="Last name" required>
+            <input type="tel" id="phone" placeholder="Phone (Ex: 0123456789)" pattern="^[0-9]{10}$" required>
+            <input type="email" id="email" placeholder="E-mail" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" id="confirm-password" placeholder="Confirm Password" required>
+            <!-- case à cocher pour le consentement de garder les parcours-->
+            <div class="checkbox-container">
+                <label for="consent">J'accepte de partager mes informations anonyme sur les parcours</label>
+                <input type="checkbox" id="consent">
+            </div>
+            <div class="checkbox-container">
+                <label for="terms">J'accepte de stocker mes informations sur les parcours pour mon utilisation personnel</label>
+                <input type="checkbox" id="terms" required>
+            </div>
+            <button type="submit">S'inscrire</button>
+        </form>
+        <p>Déjà un compte ? <a href="connection.html">Se connecter</a></p>
+        <p id="response-message"></p>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/signup.js"></script>
+</body>
+</html>

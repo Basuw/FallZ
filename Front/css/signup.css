@@ -1,0 +1,43 @@
+@import url('base.css');
+
+/* Conteneur global pour centrer le formulaire */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f4f4f9;
+}
+
+.signup-container {
+    background-color: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px; /* Limite la largeur maximale */
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.signup-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.signup-container .checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 10px;
+    font-size: 14px;
+    text-align: left;
+}
+
+#response-message {
+    margin-top: 10px;
+    font-weight: bold;
+    color: red;
+}

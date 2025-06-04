@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mon Profil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/index.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <h2>Bienvenue, <span id="username"></span>!</h2>
+            <div class="credits">Note a payer : <span id="bill"></span></div>
+        </div>
+        
+        <div class="profile-content">
+            <div class="hikes-sidebar">
+                <h3>Mes Dernières Randonnées</h3>
+                <ul id="hikes-list">
+                    <!-- Les randonnées seront ajoutées ici par JavaScript -->
+                </ul>
+            </div>
+            
+            <div class="map-container">
+                <div id="hike-map"></div>
+                <div class="button-group">
+                    <button class="devices-btn" onclick="goToDevices()">Changer d'appareil</button>
+                    <button class="logout-btn" onclick="logout()">Se Déconnecter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/index.js"></script>
+</body>
+</html>

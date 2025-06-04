@@ -1,0 +1,19 @@
+services:
+  back-fallz:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - bdd-fallz
+
+  bdd-fallz:
+    build: ./data-fallz
+    environment:
+      POSTGRES_DB: FallzBackend
+      POSTGRES_USER: api_client
+      POSTGRES_PASSWORD: ApiClient1234
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:
