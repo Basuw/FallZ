@@ -7,6 +7,12 @@ University Porject done for SAÉ - IoT : PoC & PoT in 2nd year of Engineer degre
 Fall detector for hikers 🚶🏼‍♂️. Embedded systems which detect the fall using a accelerometer and a gyroscope. These Data are handled by a machine learning algorithm to detect if it is a fall or not exported on the arduino.
 It uses Lorawan protocol to transmit the position of the user, obtained with a GPS module 🌍. These Data are transmitted via TheThingsStack broker and retrieved by our backend. Possible to create an account with multiple devices, each of them related to one person. You can track all your hikes on a map but also you falls and these data are storde in a PostgreSQL database 💾.
 
+### Languages / frameworks
+- SpringBoot 3 🍃
+- JavaScript 📱
+- PostgreSQl 💾
+- Docker 📦
+
 ## User notice
 
 Clone repository
